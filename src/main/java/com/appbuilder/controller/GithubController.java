@@ -36,8 +36,8 @@ public class GithubController {
 			return "clone";
 		}
 		String newPath = githubService.getNewPath();
-		gradleService.executeGradle(newPath);
+		//gradleService.executeGradle(newPath);
 		model.addAttribute("githubInfo", new GithubInfo());
-		return "/";
+		return "clone-success";
 	}
 }
