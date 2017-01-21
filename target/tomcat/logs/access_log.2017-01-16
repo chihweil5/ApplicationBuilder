@@ -1,0 +1,7 @@
+0:0:0:0:0:0:0:1 - - [16/Jan/2017:23:42:58 -0700] "GET /login HTTP/1.1" 200 922 http-bio-8080-exec-1 1106
+0:0:0:0:0:0:0:1 - - [16/Jan/2017:23:42:58 -0700] "GET /webjars/bootstrap-datepicker/1.0.1/js/bootstrap-datepicker.js HTTP/1.1" 404 949 http-bio-8080-exec-2 10
+0:0:0:0:0:0:0:1 - - [16/Jan/2017:23:42:58 -0700] "GET /favicon.ico HTTP/1.1" 404 949 http-bio-8080-exec-4 5
+0:0:0:0:0:0:0:1 - - [16/Jan/2017:23:44:52 -0700] "GET /login HTTP/1.1" 200 922 http-bio-8080-exec-6 35
+0:0:0:0:0:0:0:1 - - [16/Jan/2017:23:44:52 -0700] "GET /webjars/bootstrap-datepicker/1.0.1/js/bootstrap-datepicker.js HTTP/1.1" 404 949 http-bio-8080-exec-7 4
+0:0:0:0:0:0:0:1 - - [16/Jan/2017:23:45:33 -0700] "GET /login HTTP/1.1" 200 922 http-bio-8080-exec-8 3563
+0:0:0:0:0:0:0:1 - - [16/Jan/2017:23:45:33 -0700] "GET /webjars/bootstrap-datepicker/1.0.1/js/bootstrap-datepicker.js HTTP/1.1" 404 949 http-bio-8080-exec-9 6
