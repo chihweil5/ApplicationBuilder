@@ -17,12 +17,18 @@
 		</fieldset>
 		<fieldset class="form-group">
 			<div class="col-xs-3">
+				<label>commit hash:</label> 
+				<input class="form-control" type="text" name="tags" placeholder="Enter the SHA hash" required="required">
+			</div>
+		</fieldset>
+		<fieldset class="form-group">
+			<div class="col-xs-3">
 				<label>Save to:</label> 
 				<input class="form-control" type="text" name="path" placeholder="Enter the local path" required="required">
 			</div>
 		</fieldset>
 		<div>
-			<button type="submit" class="btn btn-primary btn-md">Clone</button>
+			<button type="submit" class="btn btn-primary btn-md">Clone and Build</button>
 		</div>
 		
 	</form:form>

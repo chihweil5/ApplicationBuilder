@@ -14,7 +14,7 @@ public class GradleService {
 		ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(projectDir).connect();
 
 		try {
-			connection.newBuild().forTasks("build").run();
+			connection.newBuild().forTasks("assembleDebug").run();
 		} finally {
 			connection.close();
 		}

@@ -24,20 +24,35 @@ public class GithubController {
 
 
 	@RequestMapping(value = "/clone", method = RequestMethod.GET)
-    public String showLoginPage() {
+    public String showClonePage() {
         return "clone";
     }
 	
 	@RequestMapping(value = "/clone", method = RequestMethod.POST)
-	public String handleCloneRequest(@RequestParam String username, @RequestParam String reponame, @RequestParam String path, ModelMap model) throws IOException, GitAPIException, InterruptedException {
+	public String handleCloneRequest(@RequestParam String username, @RequestParam String reponame, @RequestParam String tags, @RequestParam String path, ModelMap model) throws IOException, GitAPIException, InterruptedException {
+		
+		GithubInfo githubInfo = new GithubInfo(username, reponame, tags, path);
 
-		if(!githubService.CloneRemoteRepository(username, reponame, path)){
+		// check the repository
+		if (!githubService.isRepoValid(githubInfo.getURL())) {
 			model.put("errorMsg", "Invalid user name or repository name");
 			return "clone";
 		}
-		String newPath = githubService.getNewPath();
+		
+		// clone
+		githubService.CloneRemoteRepository(githubInfo, path);
+		
+		// get commit
+		githubService.getCommitByTags(githubInfo);
+	
 		//gradleService.executeGradle(newPath);
 		model.addAttribute("githubInfo", new GithubInfo());
 		return "clone-success";
 	}
+	
+	@RequestMapping(value = "/clone-success", method = RequestMethod.GET)
+    public String showSuccessPage() {
+        return "clone-success";
+    }
+	
 }
