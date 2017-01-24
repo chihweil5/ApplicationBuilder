@@ -44,6 +44,8 @@ public class GithubController {
 		
 		// get commit
 		githubService.getCommitByTags(githubInfo);
+		
+		githubService.getVersionByTags(githubInfo);
 	
 		//gradleService.executeGradle(newPath);
 		model.addAttribute("githubInfo", new GithubInfo());
