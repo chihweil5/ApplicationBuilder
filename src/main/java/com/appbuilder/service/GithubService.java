@@ -11,16 +11,22 @@ import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.GitCommand;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.springframework.stereotype.Service;
 
+import com.appbuilder.helper.GithubHelper;
 import com.appbuilder.model.GithubInfo;
 
 @Service
 public class GithubService {
 
-	String newPath;
-	
 	public boolean isRepoValid(String url) throws MalformedURLException, IOException {
 
 		System.out.println("connecting github..." + url);
@@ -31,23 +37,20 @@ public class GithubService {
 		return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
 	}
 
-	public void CloneRemoteRepository(GithubInfo githubInfo, String path)
-			throws IOException, GitAPIException, InterruptedException {
+	public void CloneRemoteRepository(GithubInfo g, String path) throws IOException, GitAPIException, InterruptedException {
 
 		 // prepare a new folder for the cloned repository 
 		 File dir = new File(path); 
-		 File localPath = File.createTempFile(githubInfo.getRepoName(), "", dir);
+		 File localPath = File.createTempFile(g.getRepoName(), "", dir);
 		 System.out.println("Temp file : " + localPath.getAbsolutePath()); 
 		 if(!localPath.delete()) { 
 			 throw new IOException("Could not delete temporary file " + localPath); 
 		 } 
-		 
-		 setNewPath(localPath.getAbsolutePath());
 
 		 // then clone 
-		 System.out.println("Cloning from " + githubInfo.getURL() + " to " + localPath); 
-		 try (Git result = Git.cloneRepository().setURI(githubInfo.getRepoURL()).setDirectory(localPath).call()) { 
-			 githubInfo.setLocalpath(localPath.getAbsolutePath());
+		 System.out.println("Cloning from " + g.getURL() + " to " + localPath); 
+		 try (Git result = Git.cloneRepository().setURI(g.getRepoURL()).setDirectory(localPath).call()) { 
+			 g.setLocalpath(localPath.getAbsolutePath());
 			 System.out.println("Having repository: " + result.getRepository().getDirectory()); 
 		 } catch (Exception ex) {
 			 System.out.println("Fail to have repository"); 
@@ -68,15 +71,14 @@ public class GithubService {
 		}
 	}
 	
-	public void getVersionByTags(GithubInfo g) {
-		
-	}
-
-	public String getNewPath() {
-		return newPath;
-	}
-
-	private void setNewPath(String newPath) {
-		this.newPath = newPath;
+	public void getVersionByTags(GithubInfo g) throws IOException, CheckoutConflictException, GitAPIException {
+		File dir = new File(g.getLocalpath() + "/.git"); 
+		try (Repository repository = GithubHelper.openRepository(dir)) {
+			try (Git git = new Git(repository)) {
+				System.out.println("get Version " + g.getTags());
+				git.checkout().setCreateBranch( true ).setName( "new-branch" ).setStartPoint( g.getTags() ).call();
+				git.checkout().setName( "new-branch").call();
+			}
+	    }
 	}
 }
