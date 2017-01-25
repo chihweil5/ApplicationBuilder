@@ -2,6 +2,7 @@ package com.appbuilder.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,14 +12,10 @@ import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRefNameException;
-import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
-import org.eclipse.jgit.api.errors.RefNotFoundException;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.springframework.stereotype.Service;
 
 import com.appbuilder.helper.GithubHelper;
@@ -49,7 +46,7 @@ public class GithubService {
 
 		 // then clone 
 		 System.out.println("Cloning from " + g.getURL() + " to " + localPath); 
-		 try (Git result = Git.cloneRepository().setURI(g.getRepoURL()).setDirectory(localPath).call()) { 
+		 try (Git result = Git.cloneRepository().setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out))).setURI(g.getRepoURL()).setDirectory(localPath).call()) { 
 			 g.setLocalpath(localPath.getAbsolutePath());
 			 System.out.println("Having repository: " + result.getRepository().getDirectory()); 
 		 } catch (Exception ex) {
@@ -57,7 +54,7 @@ public class GithubService {
 		 }
 	}
 	
-	public void getCommitByTags(GithubInfo g) throws IOException {
+	public String getCommitByTags(GithubInfo g) throws IOException {
 		RepositoryService service = new RepositoryService();
 		List<org.eclipse.egit.github.core.Repository> repositories = service.getRepositories(g.getUserName());
 		String sha = g.getTags();
@@ -65,10 +62,16 @@ public class GithubService {
 			if(repo.getName().equals(g.getRepoName())) {
 				System.out.println("get commit in repository :" + repo.getName());
 				CommitService commitService = new CommitService();
-				RepositoryCommit commit = (RepositoryCommit) commitService.getCommit(repo, sha);
-				System.out.println(commit.getCommit().getMessage());
+				try {
+					RepositoryCommit commit = (RepositoryCommit) commitService.getCommit(repo, sha);
+					System.out.println(commit.getCommit().getMessage());
+					return commit.getCommit().getMessage();
+				} catch(Exception e) {
+					System.out.println("ERROR: " + e);
+				}
 			}
 		}
+		return "Commit Hash not found";
 	}
 	
 	public void getVersionByTags(GithubInfo g) throws IOException, CheckoutConflictException, GitAPIException {

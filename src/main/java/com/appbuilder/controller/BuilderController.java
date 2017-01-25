@@ -1,0 +1,125 @@
+package com.appbuilder.controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.appbuilder.model.GithubInfo;
+import com.appbuilder.model.GithubInfoWrapper;
+import com.appbuilder.service.GithubService;
+import com.appbuilder.service.GradleService;
+
+@Controller
+public class BuilderController {
+	
+	@Autowired
+    private GithubService githubService;
+	@Autowired
+	private GradleService gradleService;
+	
+	@RequestMapping(value = "/appbuilder", method = RequestMethod.GET)
+    public String showProjectNumPage() {
+        return "appbuilder";
+    }
+	
+	@RequestMapping(value = "/appbuilder", method = RequestMethod.POST)
+    public String setProjectNum(ModelMap model, @RequestParam String numOfProj) {
+		System.out.println("Project num: " + numOfProj);
+		model.addAttribute("numOfProj", numOfProj);
+        return "redirect:projectform";
+    }
+	
+	@RequestMapping(value = "/projectform", method = RequestMethod.GET)
+    public String showProjectFormPage(ModelMap model,  @RequestParam String numOfProj) {
+		GithubInfoWrapper githubInfoWrapper = new GithubInfoWrapper();
+		for(int i = 0; i < Integer.parseInt(numOfProj); i++) {
+			githubInfoWrapper.add(new GithubInfo());
+		}
+		System.out.println("GithubInfoWrapper size: " + githubInfoWrapper.getGithubInfoList().size());
+		model.addAttribute("githubInfoWrapper", githubInfoWrapper);
+        return "projectform";
+    }
+	/*@RequestMapping(value = "/builder", method = RequestMethod.GET)
+    public String showClonePage(ModelMap model) {
+		GithubInfoWrapper githubInfoWrapper = new GithubInfoWrapper();
+		githubInfoWrapper.add(new GithubInfo("a","b","c","d"));
+		githubInfoWrapper.add(new GithubInfo("e","f","g","h"));
+		System.out.println("GithubInfoWrapper size: " + githubInfoWrapper.getGithubInfoList().size());
+		List<GithubInfo> test = githubInfoWrapper.getGithubInfoList();
+		System.out.println(test.get(0).getUserName());
+		model.addAttribute("githubInfoWrapper", githubInfoWrapper);
+        return "appbuilder";
+    }*/
+    
+	@RequestMapping(value = "/projectform", method = RequestMethod.POST)
+    public String dataRequest(ModelMap model, GithubInfoWrapper githubInfoWrapper) {
+		System.out.println(githubInfoWrapper.toString());
+        return "build-success";
+    }
+	
+	@RequestMapping(value = "/clone", method = RequestMethod.POST)
+	public String handleCloneRequest(@RequestParam String username, @RequestParam String reponame, @RequestParam String tags, @RequestParam String path, ModelMap model) throws IOException, GitAPIException, InterruptedException {
+		
+		GithubInfo githubInfo = new GithubInfo(username, reponame, tags, path);
+		
+		// check the repository
+		if (!githubService.isRepoValid(githubInfo.getURL())) {
+			model.put("errorMsg", "Invalid user name or repository name");
+			return "clone";
+		}
+		
+		//check the commit hash
+		if(!githubInfo.getTags().equals("")) {
+			
+			System.out.println("Start checking out the commit....");
+			// get commit
+			String commit = githubService.getCommitByTags(githubInfo);
+			
+			if(commit.equals("Commit Hash not found")) {
+				model.put("errorMsg", "Error message: Invalid SHA tag" );
+				return "build-fail";
+			}
+			else {
+				model.put("commitHash", "Building Version: " + commit + "(" + tags + ")" );
+
+				System.out.println("Start cloning....");
+				// clone
+				githubService.CloneRemoteRepository(githubInfo, path);
+				githubService.getVersionByTags(githubInfo);
+			}
+		}
+		else {
+			model.put("commitHash", "Building the latest Version" );
+
+			System.out.println("Start cloning....");
+			// clone
+			githubService.CloneRemoteRepository(githubInfo, path);
+		}
+		System.out.println(githubInfo.toString());
+		System.out.println("Start Building....");
+		if(!gradleService.executeGradle(githubInfo.getLocalpath())) {
+			System.out.println("--------------------------------------------------");
+			System.out.println("Fail to build the app project");
+			System.out.println("Error message: " + gradleService.getErrorMsg());
+			System.out.println("--------------------------------------------------");
+			model.put("errorMsg", "Error message: " + gradleService.getErrorMsg());
+			return "build-fail";
+		}
+		else {
+			return "build-success";
+		}
+	}
+	
+	@RequestMapping(value = "/clone-success", method = RequestMethod.GET)
+    public String showSuccessPage() {
+        return "clone-success";
+    }
+	
+}

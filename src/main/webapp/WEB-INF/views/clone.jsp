@@ -1,7 +1,7 @@
 <%@ include file="common/header.jspf"%>
 
 <div class="container">
-	<h1>Github Clone</h1>
+	<h1>Android Application Builder</h1>
 	<form:form action="/clone" method="post" class="form-horizontal">
 		<fieldset class="form-group">
 			<div class="col-xs-3">
@@ -27,6 +27,11 @@
 				<input class="form-control" type="text" name="path" placeholder="Enter the local path" required="required">
 			</div>
 		</fieldset>
+		
+		<div>
+			<button type="button" class="btn btn-primary btn-md">New Project</button>
+		</div>
+		
 		<div>
 			<button type="submit" class="btn btn-primary btn-md">Clone and Build</button>
 		</div>
