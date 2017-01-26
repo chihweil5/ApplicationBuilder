@@ -12,24 +12,25 @@
 				<label class="col-xs-1 control-label">Project</label>
 				<div class="col-xs-2">
 					<form:input path="githubInfoList[${i.index}].userName" type="text"
-						class="form-control" id="github[0].username"
-						name="github[0].username" placeholder="GitHub User Name" />
+						class="form-control" id="github[${i.index}].username"
+						name="github[${i.index}].username" placeholder="GitHub User Name" />
 				</div>
 				<div class="col-xs-2">
 					<form:input path="githubInfoList[${i.index}].repoName" type="text"
-						class="form-control" id="github[0].reponame"
-						name="github[0].reponame" placeholder="Repository Name" />
+						class="form-control" id="github[${i.index}].reponame"
+						name="github[${i.index}].reponame" placeholder="Repository Name" />
 				</div>
 				<div class="col-xs-3">
 					<form:input path="githubInfoList[${i.index}].tags" type="text"
-						class="form-control" id="github[0].tags" name="github[0].tags"
+						class="form-control" id="github[${i.index}].tags" name="github[${i.index}].tags"
 						placeholder="SHA Tag" />
 				</div>
 				<div class="col-xs-3">
 					<form:input path="githubInfoList[${i.index}].localpath" type="text"
-						class="form-control" id="github[0].path" name="github[0].path"
+						class="form-control" id="github[${i.index}].path" name="github[${i.index}].path"
 						placeholder="Local Path" />
 				</div>
+				<h5 style="color: red">${errorMsg }</h5>
 			</div>
 		</c:forEach>
 
@@ -40,10 +41,8 @@
 			<a class="btn btn-primary" href="/appbuilder">Back</a>
 		</div>
 	</form:form>
-
-	
-
 </div>
+
 <%@ include file="common/footer.jspf"%>
 
 

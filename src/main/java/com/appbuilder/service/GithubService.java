@@ -34,10 +34,10 @@ public class GithubService {
 		return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
 	}
 
-	public void CloneRemoteRepository(GithubInfo g, String path) throws IOException, GitAPIException, InterruptedException {
+	public void CloneRemoteRepository(GithubInfo g) throws IOException, GitAPIException, InterruptedException {
 
 		 // prepare a new folder for the cloned repository 
-		 File dir = new File(path); 
+		 File dir = new File(g.getLocalpath()); 
 		 File localPath = File.createTempFile(g.getRepoName(), "", dir);
 		 System.out.println("Temp file : " + localPath.getAbsolutePath()); 
 		 if(!localPath.delete()) { 
