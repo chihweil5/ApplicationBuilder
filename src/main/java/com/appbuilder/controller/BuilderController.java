@@ -26,6 +26,8 @@ public class BuilderController {
 	@Autowired
 	private GradleService gradleService;
 	
+	private List<GithubInfo> githubInfoList;
+	
 	@RequestMapping(value = "/appbuilder", method = RequestMethod.GET)
     public String showProjectNumPage() {
         return "appbuilder";
@@ -39,7 +41,7 @@ public class BuilderController {
     }
 	
 	@RequestMapping(value = "/projectform", method = RequestMethod.GET)
-    public String showProjectFormPage(ModelMap model,  @RequestParam String numOfProj) {
+    public String showProjectFormPage(ModelMap model, @RequestParam String numOfProj) {
 		GithubInfoWrapper githubInfoWrapper = new GithubInfoWrapper();
 		for(int i = 0; i < Integer.parseInt(numOfProj); i++) {
 			githubInfoWrapper.add(new GithubInfo());
@@ -63,9 +65,18 @@ public class BuilderController {
 	@RequestMapping(value = "/projectform", method = RequestMethod.POST)
     public String dataRequest(ModelMap model, GithubInfoWrapper githubInfoWrapper) throws MalformedURLException, IOException, GitAPIException, InterruptedException {
 		System.out.println(githubInfoWrapper.toString());
+		githubInfoList = githubInfoWrapper.getGithubInfoList();
+        return "redirect:result";
+    }
+	
+	
+	@RequestMapping(value = "/result", method = RequestMethod.GET)
+	public String showResultPage(ModelMap model) throws IOException, GitAPIException, InterruptedException {
 		List<String>msg = new ArrayList<String>();
 		List<String>status = new ArrayList<String>();
-		List<GithubInfo> githubInfoList = githubInfoWrapper.getGithubInfoList();
+		//List<GithubInfo> githubInfoList = githubInfoWrapper.getGithubInfoList();
+		System.out.println(githubInfoList.toString());
+		
 		for(int i = 0; i < githubInfoList.size(); i++ ) {
 			// check the repository
 			if (!githubService.isRepoValid(githubInfoList.get(i).getURL())) {
@@ -124,65 +135,14 @@ public class BuilderController {
 		model.addAttribute("githubInfoList", githubInfoList);
 		model.addAttribute("Msg", msg);
 		model.addAttribute("Status", status);
-        return "result";
-    }
-	
-	@RequestMapping(value = "/clone", method = RequestMethod.POST)
-	public String handleOneRequest(@RequestParam String username, @RequestParam String reponame, @RequestParam String tags, @RequestParam String path, ModelMap model) throws IOException, GitAPIException, InterruptedException {
+		return "result";
 		
-		GithubInfo githubInfo = new GithubInfo(username, reponame, tags, path);
-		
-		// check the repository
-		if (!githubService.isRepoValid(githubInfo.getURL())) {
-			model.put("errorMsg", "Invalid user name or repository name");
-			return "clone";
-		}
-		
-		//check the commit hash
-		if(!githubInfo.getTags().equals("")) {
-			
-			System.out.println("Start checking out the commit....");
-			// get commit
-			String commit = githubService.getCommitByTags(githubInfo);
-			
-			if(commit.equals("Commit Hash not found")) {
-				model.put("errorMsg", "Error message: Invalid SHA tag" );
-				return "build-fail";
-			}
-			else {
-				model.put("commitHash", "Building Version: " + commit + "(" + tags + ")" );
-
-				System.out.println("Start cloning....");
-				// clone
-				githubService.CloneRemoteRepository(githubInfo);
-				githubService.getVersionByTags(githubInfo);
-			}
-		}
-		else {
-			model.put("commitHash", "Building the latest Version" );
-
-			System.out.println("Start cloning....");
-			// clone
-			githubService.CloneRemoteRepository(githubInfo);
-		}
-		System.out.println(githubInfo.toString());
-		System.out.println("Start Building....");
-		if(!gradleService.executeGradle(githubInfo.getLocalpath())) {
-			System.out.println("--------------------------------------------------");
-			System.out.println("Fail to build the app project");
-			System.out.println("Error message: " + gradleService.getErrorMsg());
-			System.out.println("--------------------------------------------------");
-			model.put("errorMsg", "Error message: " + gradleService.getErrorMsg());
-			return "build-fail";
-		}
-		else {
-			return "build-success";
-		}
 	}
 	
-	@RequestMapping(value = "/clone-success", method = RequestMethod.GET)
+	
+	@RequestMapping(value = "/clone-build", method = RequestMethod.GET)
     public String showSuccessPage() {
-        return "clone-success";
+        return "clone-build";
     }
 	
 }
