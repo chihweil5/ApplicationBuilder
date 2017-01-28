@@ -2,13 +2,12 @@
 
 <div class="container">
 
-	<h1>Result</h1>
+<h1>Result</h1>
 	<br> <br>
-	
 	<div class="form-group">
-		<span class="col-xs-2" class="input-group-addon">Search by: </span>
-		<div class="col-xs-2">
-			<select class="form-control" id="select1" name="select1"
+		<label class="col-xs-2 control-label">Search by: </label>
+		<div class="col-xs-2 selectContainer">
+			<select class="selectpicker form-control" id="select1" name="select1"
 				onChange="showOption()">
 				<option value="">Please Select</option>
 				<option value="Name">Repository Name</option>
@@ -18,8 +17,11 @@
 		<div class="col-xs-2">
 			<select class="form-control" id="select2" name="select2"
 				onChange="search()">
-				<option value="">--</option>
 			</select>
+		</div>
+		
+		<div class="col-xs-1">
+			<button class="btn btn-default" onclick="showAll()">Show All</button>
 		</div>
 	</div>
 	<br> <br>
@@ -56,13 +58,25 @@
 	</div>
 
 </div>
-
+<script>
+$(document).ready(function() {
+	console.log("selectpicker");
+	$('.selectpicker').selectpicker({
+    });
+	$(".bootstrap-select").click(function () {
+        $(this).addClass("open");
+   });
+	$('#selectpicker-container').on('hide.bs.dropdown', function () {
+	    alert('hide.bs.dropdown');
+	})
+});
+</script>
 <script>
 
 	function showOption() {
 		console.log("changing the option");
 		var table, tr, td, i;
-		var githubName = new Array();
+		var githubName = [];
 		table = document.getElementById("myTable");
 		tr = table.getElementsByTagName("tr");
 		var sel1 = document.getElementById('select1');
@@ -72,18 +86,22 @@
 			console.log("Repository Name");
 			for (i = 0; i < tr.length; i++) {
 			    td = tr[i].getElementsByTagName("td")[0];
+			    
 			    if (td) {
-			    	sel2.options[i] = new Option(td.innerHTML, td.innerHTML);
+			    	console.log(i);
+			    	sel2.options[i-1] = new Option(td.innerHTML, td.innerHTML);
 			    } 
-			  }
+			 }
+			sel2.length = tr.length-1;
 			
 		} else if(sel1.value == "Status") {
-			for (i = 0; i < tr.length; i++) {
-			    td = tr[i].getElementsByTagName("td")[1];
-			    if (td) {
-			    	sel2.options[i] = new Option(td.innerHTML, td.innerHTML);
-			    } 
-			  }
+			sel2.options[0] = new Option("Built", "Built");
+			sel2.options[1] = new Option("Failed", "Failed");
+			sel2.length = 2;
+		}
+		else {
+			sel2.options[i] = new Option();
+			sel2.length = 0;
 		}
 	}
 </script>
@@ -121,28 +139,25 @@
 				}
 			}
 		}
-
-	}
-
-	function searchByStatus() {
-		// Declare variables 
-		var input, filter, table, tr, td, i;
-		input = document.getElementById("select2");
-		filter = input.value;
-		table = document.getElementById("myTable");
-		tr = table.getElementsByTagName("tr");
-
-		// Loop through all table rows, and hide those who don't match the search query
-		for (i = 0; i < tr.length; i++) {
-			td = tr[i].getElementsByTagName("td")[1];
-			if (td) {
-				if (td.innerHTML.indexOf(filter) > -1) {
-					tr[i].style.display = "";
-				} else {
-					tr[i].style.display = "none";
-				}
+		else {
+			for (i = 0; i < tr.length; i++) {
+				tr[i].style.display = "";
 			}
 		}
 	}
 </script>
+
+<script>
+	function showAll() {
+		// Declare variables 
+		var input1, input2, table, tr, td, i;
+		table = document.getElementById("myTable");
+		tr = table.getElementsByTagName("tr");
+		for (i = 0; i < tr.length; i++) {
+				tr[i].style.display = "";
+		}
+		
+	}
+</script>
+
 <%@ include file="common/footer.jspf"%>

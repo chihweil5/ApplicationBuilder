@@ -34,6 +34,7 @@
 			<tr>
 				<th>User Name/Repository Name</th>
 				<th>Status</th>
+				<th>Path</th>
 				<th>Message</th>
 			</tr>
 		</thead>
@@ -42,6 +43,7 @@
 				<tr>
 					<td>${githubInfo.userName}/${githubInfo.repoName}</td>
 					<td>${Status[i.index]}</td>
+					<td>${githubInfo.localpath}</td>
 					<td>${Msg[i.index]}</td>
 				</tr>
 			</c:forEach>
@@ -58,8 +60,8 @@
 
 	function showOption() {
 		console.log("changing the option");
-		var table, tr, td, i;
-		var githubName = new Array();
+		var table, tr, td, i, nameindex=0;
+		var githubName = [];
 		table = document.getElementById("myTable");
 		tr = table.getElementsByTagName("tr");
 		var sel1 = document.getElementById('select1');
@@ -69,21 +71,24 @@
 			console.log("Repository Name");
 			for (i = 0; i < tr.length; i++) {
 			    td = tr[i].getElementsByTagName("td")[0];
+			    console.log(nameindex);
 			    if (td) {
-			    	sel2.options[i] = new Option(td.innerHTML, td.innerHTML);
+			    	if(githubName.indexOf(td.innerHTML) < 0){
+			    		githubName.push(td.innerHTML);
+			    		sel2.options[nameindex] = new Option(td.innerHTML, td.innerHTML);
+			    		nameindex++;
+				    }
 			    } 
 			  }
 			
 		} else if(sel1.value == "Status") {
-			for (i = 0; i < tr.length; i++) {
-			    td = tr[i].getElementsByTagName("td")[1];
-			    if (td) {
-			    	sel2.options[i] = new Option(td.innerHTML, td.innerHTML);
-			    } 
-			  }
+			sel2.options[0] = new Option("Built", "Built");
+			sel2.options[1] = new Option("Failed", "Failed");
+			sel2.length = 2;
 		}
 		else {
 			sel2.options[i] = new Option();
+			sel2.length = 0;
 		}
 	}
 </script>

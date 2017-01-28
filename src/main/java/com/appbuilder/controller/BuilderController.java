@@ -72,17 +72,21 @@ public class BuilderController {
 	
 	@RequestMapping(value = "/result", method = RequestMethod.GET)
 	public String showResultPage(ModelMap model) throws IOException, GitAPIException, InterruptedException {
-		List<String>msg = new ArrayList<String>();
-		List<String>status = new ArrayList<String>();
+		ArrayList<String>msg = new ArrayList<String>();
+		ArrayList<String>status = new ArrayList<String>();
 		//List<GithubInfo> githubInfoList = githubInfoWrapper.getGithubInfoList();
 		System.out.println(githubInfoList.toString());
+		model.addAttribute("githubInfoList", githubInfoList);
+		model.addAttribute("Msg", msg);
+		model.addAttribute("Status", status);
 		
 		for(int i = 0; i < githubInfoList.size(); i++ ) {
 			// check the repository
 			if (!githubService.isRepoValid(githubInfoList.get(i).getURL())) {
 				System.out.println("errorMsg: Invalid user name or repository name");
-				msg.add("Invalid URL");
+				msg.add("Invalid user name or repository name");
 				status.add("Failed");
+				githubInfoList.get(i).setLocalpath("");
 				continue;
 			}
 			
@@ -97,23 +101,25 @@ public class BuilderController {
 					System.out.println("errorMsg: Error message: Invalid SHA tag" );
 					msg.add("Invalid SHA tag");
 					status.add("Failed");
+					githubInfoList.get(i).setLocalpath("");
 					continue;
 				}
 				else {
 					System.out.println("Building Version: " + commit + "(" + githubInfoList.get(i).getTags() + ")" );
-					msg.add("Building Version: " + commit + "(" + githubInfoList.get(i).getTags() + ")");
 					System.out.println("Start cloning....");
 					// clone
 					githubService.CloneRemoteRepository(githubInfoList.get(i));
 					githubService.getVersionByTags(githubInfoList.get(i));
+					msg.add("Building Version: " + commit + "(" + githubInfoList.get(i).getTags() + ")");
 				}
 			}
 			else {
 				System.out.println("Building the latest Version" );
-				msg.add("Building the latest Version");
+				
 				System.out.println("Start cloning latest version....");
 				// clone
 				githubService.CloneRemoteRepository(githubInfoList.get(i));
+				msg.add("Building the latest Version");
 			}
 			
 			System.out.println(githubInfoList.get(i).toString());
@@ -123,9 +129,8 @@ public class BuilderController {
 				System.out.println("Fail to build the app project");
 				System.out.println("Error message: " + gradleService.getErrorMsg());
 				System.out.println("--------------------------------------------------");
-				model.put("errorMsg", "Error message: " + gradleService.getErrorMsg());
 				msg.set(i, "Error message: " + gradleService.getErrorMsg());
-				status.set(i, "Failed");
+				status.add("Failed");
 				continue;
 			}
 			status.add("Built");
