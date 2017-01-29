@@ -3,7 +3,11 @@ package com.appbuilder.controller;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +31,19 @@ public class BuilderController {
 	private GradleService gradleService;
 	
 	private List<GithubInfo> githubInfoList;
+	private List<String> msg;
+	private List<String> status;
+
 	
+	
+	
+	public BuilderController() {
+		super();
+		githubInfoList = new ArrayList<GithubInfo>();
+		msg = new ArrayList<String>();
+		status = new ArrayList<String>();
+	}
+
 	@RequestMapping(value = "/appbuilder", method = RequestMethod.GET)
     public String showProjectNumPage() {
         return "appbuilder";
@@ -63,90 +79,176 @@ public class BuilderController {
     }*/
     
 	@RequestMapping(value = "/projectform", method = RequestMethod.POST)
-    public String dataRequest(ModelMap model, GithubInfoWrapper githubInfoWrapper) throws MalformedURLException, IOException, GitAPIException, InterruptedException {
+    public void HandleCloneAndBuild(ModelMap model, GithubInfoWrapper githubInfoWrapper) throws MalformedURLException, IOException, GitAPIException, InterruptedException {
 		System.out.println(githubInfoWrapper.toString());
 		githubInfoList = githubInfoWrapper.getGithubInfoList();
-        return "redirect:result";
-    }
-	
-	
-	@RequestMapping(value = "/result", method = RequestMethod.GET)
-	public String showResultPage(ModelMap model) throws IOException, GitAPIException, InterruptedException {
-		ArrayList<String>msg = new ArrayList<String>();
-		ArrayList<String>status = new ArrayList<String>();
-		//List<GithubInfo> githubInfoList = githubInfoWrapper.getGithubInfoList();
-		System.out.println(githubInfoList.toString());
-		model.addAttribute("githubInfoList", githubInfoList);
-		model.addAttribute("Msg", msg);
-		model.addAttribute("Status", status);
+		int projectNum = githubInfoList.size();
+		status = new ArrayList<String>(Collections.nCopies(projectNum, "Not Scheduled"));
+		msg = new ArrayList<String>(Collections.nCopies(projectNum, ""));
 		
-		for(int i = 0; i < githubInfoList.size(); i++ ) {
+		System.out.println(githubInfoList.toString());
+		
+		for(int i = 0; i < projectNum; i++ ) {
+			
+			// update the status to scheduled
+			status.set(i,"Scheduled");
+			System.out.println("checking the user name and repository name");
+			
 			// check the repository
 			if (!githubService.isRepoValid(githubInfoList.get(i).getURL())) {
+				System.out.println("--------------------------------------------------");
 				System.out.println("errorMsg: Invalid user name or repository name");
-				msg.add("Invalid user name or repository name");
-				status.add("Failed");
+				System.out.println("--------------------------------------------------");
+				msg.set(i, "Invalid user name or repository name");
+				status.set(i,"Failed");
 				githubInfoList.get(i).setLocalpath("");
 				continue;
 			}
 			
-			//check the commit hash
+			System.out.println("Start checking out the commit....");
+			// check the commit hash and clone
 			if(!githubInfoList.get(i).getTags().equals("")) {
-				
-				System.out.println("Start checking out the commit....");
-				// get commit
 				String commit = githubService.getCommitByTags(githubInfoList.get(i));
 				
 				if(commit.equals("Commit Hash not found")) {
+					System.out.println("--------------------------------------------------");
 					System.out.println("errorMsg: Error message: Invalid SHA tag" );
-					msg.add("Invalid SHA tag");
-					status.add("Failed");
+					System.out.println("--------------------------------------------------");
+					
+					msg.set(i, "Invalid SHA tag");
+					status.set(i, "Failed");
 					githubInfoList.get(i).setLocalpath("");
 					continue;
 				}
 				else {
+					System.out.println("--------------------------------------------------");
 					System.out.println("Building Version: " + commit + "(" + githubInfoList.get(i).getTags() + ")" );
 					System.out.println("Start cloning....");
-					// clone
+					System.out.println("--------------------------------------------------");
+					
 					githubService.CloneRemoteRepository(githubInfoList.get(i));
 					githubService.getVersionByTags(githubInfoList.get(i));
-					msg.add("Building Version: " + commit + "(" + githubInfoList.get(i).getTags() + ")");
+					msg.set(i, "Building Version: " + commit + "(" + githubInfoList.get(i).getTags() + ")");
 				}
 			}
 			else {
+				System.out.println("--------------------------------------------------");
 				System.out.println("Building the latest Version" );
-				
 				System.out.println("Start cloning latest version....");
-				// clone
+				System.out.println("--------------------------------------------------");
+				
 				githubService.CloneRemoteRepository(githubInfoList.get(i));
-				msg.add("Building the latest Version");
+				msg.set(i, "Building the latest Version");
 			}
 			
-			System.out.println(githubInfoList.get(i).toString());
 			System.out.println("Start Building....");
+			
+			// build the project
 			if(!gradleService.executeGradle(githubInfoList.get(i).getLocalpath())) {
 				System.out.println("--------------------------------------------------");
 				System.out.println("Fail to build the app project");
 				System.out.println("Error message: " + gradleService.getErrorMsg());
 				System.out.println("--------------------------------------------------");
 				msg.set(i, "Error message: " + gradleService.getErrorMsg());
-				status.add("Failed");
+				status.set(i, "Failed");
 				continue;
 			}
-			status.add("Built");
+			status.set(i, "Built");
 		}
+		
+		System.out.println("--------------------------------------------------");
+		System.out.println("projects are completed");
+		System.out.println(githubInfoList.toString());
 		System.out.println(msg.toString());
 		System.out.println(status.toString());
-		model.addAttribute("githubInfoList", githubInfoList);
-		model.addAttribute("Msg", msg);
-		model.addAttribute("Status", status);
-		return "result";
+		System.out.println("--------------------------------------------------");
 		
+    }
+	
+	
+	@RequestMapping(value = "/result", method = RequestMethod.GET)
+	public String showResultPage(ModelMap model, @RequestParam(value = "select1", required = false) String select1, @RequestParam(value = "select2", required = false) String select2) throws IOException, GitAPIException, InterruptedException {
+		System.out.println(select1 + " " + select2);
+		int num = githubInfoList.size();
+		int i,j;
+		List<GithubInfo> _githubInfoList = new ArrayList<GithubInfo>();
+		List<String> _msg = new ArrayList<String>();
+		List<String> _status = new ArrayList<String>();
+		List<String> repoList = new ArrayList<String>();
+		
+		for(i = 0; i < num; i++) {
+			String tmpName = githubInfoList.get(i).getUserName() + "/" + githubInfoList.get(i).getRepoName();
+			for(j = 0; j < repoList.size(); j++) {
+				if(tmpName.equals(repoList.get(j))) {
+					break;
+				}
+			}
+			if(j == repoList.size()) {
+				repoList.add(tmpName);
+			}
+		}
+		
+		//System.out.println("***********************" + repoList.toString()); 
+		
+		model.addAttribute("repoList", repoList);
+
+		if(select1 != null && select2 != null) {
+
+			if(select1.equals("Name")) {
+				for(i = 0; i < num; i++) {
+					String tmpName = githubInfoList.get(i).getUserName() + "/" + githubInfoList.get(i).getRepoName();
+					if(tmpName.equals(select2)) {
+						_githubInfoList.add(githubInfoList.get(i));
+						_msg.add(msg.get(i));
+						_status.add(status.get(i));
+					}
+				}
+				//System.out.println("----------------" + _githubInfoList.toString()); 
+			}
+			else if(select1.equals("Status")) {
+				for(i = 0; i < num; i++) {
+					if(status.get(i).equals(select2)) {
+						_githubInfoList.add(githubInfoList.get(i));
+						_msg.add(msg.get(i));
+						_status.add(status.get(i));
+					}
+				}
+			}
+			else {
+				_githubInfoList = githubInfoList;
+				_msg = msg;
+				_status = status;
+			}
+		}
+		
+		model.addAttribute("_githubInfoList", _githubInfoList);
+		model.addAttribute("_Msg", _msg);
+		model.addAttribute("_Status", _status);
+		
+		return "result";
 	}
 	
 	
 	@RequestMapping(value = "/clone-build", method = RequestMethod.GET)
-    public String showSuccessPage() {
+    public String showSuccessPage(ModelMap model, @RequestParam(value = "select1", required = false) String select1, @RequestParam(value = "select2", required = false) String select2) throws InterruptedException {
+		/*
+		if(select1.length() == 0 && select2.length() == 0) {
+			return "clone-build";
+		}
+		*/
+		List<String> fruits= new ArrayList<String>(Arrays.asList("apple","banana", "cherry"));
+		List<String> nums= new ArrayList<String>(Arrays.asList("1","2", "3"));
+		List<String> status1= new ArrayList<String>(Arrays.asList("Failed","Failed", "Failed"));
+		System.out.println(select1 + " " + select2);
+		
+		model.addAttribute("fruits", fruits);
+		model.addAttribute("nums", nums);
+		model.addAttribute("status1", status1);
+				
+		
+		//if(select1.equals("Name")) {
+			//model.addAttribute("fruits", fruits);
+		//}
         return "clone-build";
     }
 	

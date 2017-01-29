@@ -1,34 +1,41 @@
 <%@ include file="common/header.jspf"%>
-
+<%@ include file="common/navigation.jspf"%>
 
 
 <div class="container">
 
-<h1>Result</h1>
+	<h1>Result</h1>
 	<br> <br>
-	<div class="form-group">
-		<label class="col-xs-2 control-label">Search by: </label>
-		<div class="col-xs-2">
-			<select class="form-control" id="select1" name="select1"
-				onChange="showOption()">
-				<option value="">Please Select</option>
-				<option value="Name">Repository Name</option>
-				<option value="Status">Status</option>
-			</select>
+	<form id="queryForm" method="get">
+		<div class="form-group">
+			<label class="col-xs-2 control-label">Search by: </label>
+			<div class="col-xs-2">
+				<select class="form-control" id="select1" name="select1" onchange="showOption()">
+					<option value="">Please Select</option>
+					<option value="Name">Repository Name</option>
+					<option value="Status">Status</option>
+					<option value="All">All</option>
+				</select>
+			</div>
+			<div class="col-xs-2">
+				<select class="form-control" id="select2" name="select2">
+					<!--  onChange="search()"--> 
+					<option value="">--</option>
+				</select>
+			</div>
+
+			<div class="col-xs-1">
+				<button class="btn btn-danger" type="submit">Query</button>
+			</div>
+<!-- 
+			<div class="col-xs-1">
+				<button class="btn btn-default" onclick="showAll()">Show All</button>
+			</div>
+ -->
 		</div>
-		<div class="col-xs-2">
-			<select class="form-control" id="select2" name="select2"
-				onChange="search()">
-				<option value="">--</option>
-			</select>
-		</div>
-		
-		<div class="col-xs-1">
-			<button class="btn btn-default" onclick="showAll()">Show All</button>
-		</div>
-	</div>
+	</form>
 	<br> <br>
-	
+
 	<table id="myTable" class="table table-striped">
 		<thead>
 			<tr>
@@ -39,60 +46,56 @@
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach items="${githubInfoList}" var="githubInfo" varStatus="i">
+			<c:forEach items="${_githubInfoList}" var="githubInfo" varStatus="i">
 				<tr>
 					<td>${githubInfo.userName}/${githubInfo.repoName}</td>
-					<td>${Status[i.index]}</td>
+					<td>${_Status[i.index]}</td>
 					<td>${githubInfo.localpath}</td>
-					<td>${Msg[i.index]}</td>
+					<td>${_Msg[i.index]}</td>
 				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
+	<!--  
 		<div>
 			<a class="btn btn-primary" href="/appbuilder">Back</a>
 		</div>
-		
+		-->
 </div>
 
-
+ 
 <script>
 
 	function showOption() {
 		console.log("changing the option");
-		var table, tr, td, i, nameindex=0;
-		var githubName = [];
-		table = document.getElementById("myTable");
-		tr = table.getElementsByTagName("tr");
 		var sel1 = document.getElementById('select1');
 		var sel2 = document.getElementById('select2');
-
+			
 		if(sel1.value == "Name") {
-			console.log("Repository Name");
-			for (i = 0; i < tr.length; i++) {
-			    td = tr[i].getElementsByTagName("td")[0];
-			    console.log(nameindex);
-			    if (td) {
-			    	if(githubName.indexOf(td.innerHTML) < 0){
-			    		githubName.push(td.innerHTML);
-			    		sel2.options[nameindex] = new Option(td.innerHTML, td.innerHTML);
-			    		nameindex++;
-				    }
-			    } 
-			  }
+			<c:forEach items="${repoList}" var="repo" varStatus="i">
+				sel2.options[${i.index}] = new Option("${repo}", "${repo}");
+			</c:forEach>
+			/*for(i = 0; i < ${repoList}.length; i++) {
+				console.log("Repository Name" + reponame);
+				sel2.options[i] = new Option(reponame[i], reponame[i]);
+			}*/
 			
 		} else if(sel1.value == "Status") {
 			sel2.options[0] = new Option("Built", "Built");
 			sel2.options[1] = new Option("Failed", "Failed");
-			sel2.length = 2;
+			sel2.options[2] = new Option("Scheduled", "Scheduled");
+			sel2.options[3] = new Option("Not Scheduled", "Not Scheduled");
+			sel2.length = 4;
 		}
 		else {
-			sel2.options[i] = new Option();
-			sel2.length = 0;
+			sel2.options[0] = new Option("All", "All");
+			sel2.length = 1;
 		}
 	}
 </script>
 
+
+<!-- 
 <script>
 	function search() {
 		// Declare variables 
@@ -146,5 +149,10 @@
 		
 	}
 </script>
-
+-->
+<!--  
+<script>
+window.location.reload(true);
+</script>
+-->
 <%@ include file="common/footer.jspf"%>

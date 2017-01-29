@@ -3,51 +3,51 @@
 <div class="container">
 
 <h1>Result</h1>
-	<br> <br>
-	<div class="form-group">
-		<label class="col-xs-2 control-label">Search by: </label>
-		<div class="col-xs-2 selectContainer">
-			<select class="selectpicker form-control" id="select1" name="select1"
-				onChange="showOption()">
-				<option value="">Please Select</option>
-				<option value="Name">Repository Name</option>
-				<option value="Status">Status</option>
-			</select>
-		</div>
-		<div class="col-xs-2">
-			<select class="form-control" id="select2" name="select2"
-				onChange="search()">
-			</select>
-		</div>
+	<br> 
+	<form id="queryForm" method="get">
+		<div class="form-group">
+			<label class="col-xs-2 control-label">Search by: </label>
+			<div class="col-xs-2 ">
+				<select class="form-control" id="select1" name="select1" onChange="showOption();">
+					<option value="">Please Select</option>
+					<option value="Name">Repository Name</option>
+					<option value="Status">Status</option>
+				</select>
+			</div>
+			<div class="col-xs-3">
+				<select class="form-control" id="select2" name="select2"
+					onChange="search()">
+				</select>
+			</div>
+			
+			<div class="col-xs-1">
+				<button class="btn btn-danger" type="submit">Query</button>
+			</div>
 		
-		<div class="col-xs-1">
-			<button class="btn btn-default" onclick="showAll()">Show All</button>
+			<div class="col-xs-1">
+				<button class="btn btn-default" onclick="showAll()">Show All</button>
+			</div>
+			
+			<label class="control-label">Select File</label>
+			<input id="input-1" type="file" class="file">
 		</div>
-	</div>
+	</form>
+	
 	<br> <br>
 	<table id="myTable" class="table table-striped">
 		<thead>
 			<tr>
 				<th>Github URL</th>
 				<th>Status</th>
-				<th>Progress</th>
 				<th>Message</th>
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach var="i" begin="1" end="5">
+			<c:forEach items="${fruits}" var="fruit" varStatus="i">
 				<tr>
-					<td>${i}</td>
-					<td>Built</td>
-					<td>
-						<div class="progress">
-							<div class="progress-bar progress-bar-striped active"
-								role="progressbar" aria-valuenow="40" aria-valuemin="0"
-								aria-valuemax="100" style="width: 40%">40%</div>
-						</div>
-					</td>
-					<td><c:out value="${i}" />
-						<p></td>
+					<td>${fruit}</td>
+					<td>${status1[i.index]}</td>
+					<td>${i.index}</td>
 
 				</tr>
 			</c:forEach>
@@ -71,8 +71,8 @@ $(document).ready(function() {
 	})
 });
 </script>
-<script>
 
+<script>
 	function showOption() {
 		console.log("changing the option");
 		var table, tr, td, i;
@@ -83,16 +83,7 @@ $(document).ready(function() {
 		var sel2 = document.getElementById('select2');
 
 		if(sel1.value == "Name") {
-			console.log("Repository Name");
-			for (i = 0; i < tr.length; i++) {
-			    td = tr[i].getElementsByTagName("td")[0];
-			    
-			    if (td) {
-			    	console.log(i);
-			    	sel2.options[i-1] = new Option(td.innerHTML, td.innerHTML);
-			    } 
-			 }
-			sel2.length = tr.length-1;
+			
 			
 		} else if(sel1.value == "Status") {
 			sel2.options[0] = new Option("Built", "Built");
@@ -100,7 +91,6 @@ $(document).ready(function() {
 			sel2.length = 2;
 		}
 		else {
-			sel2.options[i] = new Option();
 			sel2.length = 0;
 		}
 	}

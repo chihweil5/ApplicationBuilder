@@ -1,5 +1,5 @@
 <%@ include file="common/header.jspf"%>
-
+<%@ include file="common/navigation.jspf"%>
 
 <div class="container">
 	<h1>Android Application Builder</h1>
@@ -30,7 +30,6 @@
 						class="form-control" id="github[${i.index}].path" name="github[${i.index}].path"
 						placeholder="Local Path" />
 				</div>
-				<h5 style="color: red">${errorMsg }</h5>
 			</div>
 		</c:forEach>
 
