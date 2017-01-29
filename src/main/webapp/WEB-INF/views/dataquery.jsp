@@ -4,7 +4,7 @@
 
 <div class="container">
 
-	<h1>Meta-Data Query</h1>
+	<h1>Build Data Query</h1>
 	<br> <br>
 	<form id="queryForm" method="get">
 		<div class="form-group">
@@ -27,35 +27,31 @@
 			<div class="col-xs-1">
 				<button class="btn btn-danger" type="submit">Query</button>
 			</div>
-<!-- 
-			<div class="col-xs-1">
-				<button class="btn btn-default" onclick="showAll()">Show All</button>
-			</div>
- -->
 		</div>
 	</form>
 	<br> <br>
-
+	<form id="queryForm" method="get">
 	<table id="myTable" class="table table-striped">
 		<thead>
 			<tr>
 				<th>User Name/Repository Name</th>
 				<th>Status</th>
-				<th>Path</th>
-				<th>Message</th>
+				<th>Files</th>
 			</tr>
 		</thead>
 		<tbody>
 			<c:forEach items="${_githubInfoList}" var="githubInfo" varStatus="i">
 				<tr>
-					<td>${githubInfo.userName}/${githubInfo.repoName}</td>
+					<td id="path">${githubInfo.userName}/${githubInfo.repoName}</td>
 					<td>${_Status[i.index]}</td>
-					<td>${githubInfo.localpath}</td>
-					<td>${_Msg[i.index]}</td>
+					<c:if test="${_Status[i.index] == 'Built'}">
+						<td><a class="btn btn-primary" type="submit" href="/download/${i.index}">download ${githubInfo.repoName} apk file</a></td>
+					</c:if>
 				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
+	</form>
 	<!--  
 		<div>
 			<a class="btn btn-primary" href="/appbuilder">Back</a>
@@ -83,9 +79,9 @@
 		} else if(sel1.value == "Status") {
 			sel2.options[0] = new Option("Built", "Built");
 			sel2.options[1] = new Option("Failed", "Failed");
-			sel2.options[2] = new Option("Scheduled", "Scheduled");
-			sel2.options[3] = new Option("Not Scheduled", "Not Scheduled");
-			sel2.length = 4;
+			//sel2.options[2] = new Option("Scheduled", "Scheduled");
+			//sel2.options[3] = new Option("Not Scheduled", "Not Scheduled");
+			sel2.length = 2;
 		}
 		else {
 			sel2.options[0] = new Option("All", "All");
@@ -94,65 +90,4 @@
 	}
 </script>
 
-
-<!-- 
-<script>
-	function search() {
-		// Declare variables 
-		var input1, input2, table, tr, td, i;
-		input1 = document.getElementById('select1');
-		input2 = document.getElementById('select2');
-		table = document.getElementById("myTable");
-		tr = table.getElementsByTagName("tr");
-
-		if (input1.value == "Name") {
-			// Loop through all table rows, and hide those who don't match the search query
-			for (i = 0; i < tr.length; i++) {
-				td = tr[i].getElementsByTagName("td")[0];
-				if (td) {
-					if (td.innerHTML.indexOf(input2.value) > -1) {
-						tr[i].style.display = "";
-					} else {
-						tr[i].style.display = "none";
-					}
-				}
-			}
-		} else if (input1.value == "Status") {
-			for (i = 0; i < tr.length; i++) {
-				td = tr[i].getElementsByTagName("td")[1];
-				if (td) {
-					if (td.innerHTML.indexOf(input2.value) > -1) {
-						tr[i].style.display = "";
-					} else {
-						tr[i].style.display = "none";
-					}
-				}
-			}
-		}
-		else {
-			for (i = 0; i < tr.length; i++) {
-				tr[i].style.display = "";
-			}
-		}
-	}
-</script>
-
-<script>
-	function showAll() {
-		// Declare variables 
-		var input1, input2, table, tr, td, i;
-		table = document.getElementById("myTable");
-		tr = table.getElementsByTagName("tr");
-		for (i = 0; i < tr.length; i++) {
-				tr[i].style.display = "";
-		}
-		
-	}
-</script>
--->
-<!--  
-<script>
-window.location.reload(true);
-</script>
--->
 <%@ include file="common/footer.jspf"%>

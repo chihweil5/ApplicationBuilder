@@ -1,6 +1,9 @@
 package com.appbuilder.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,10 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,7 +41,8 @@ public class BuilderController {
 	private List<GithubInfo> githubInfoList;
 	private List<String> msg;
 	private List<String> status;
-
+	
+	private static final int BUFFER_SIZE = 4096;
 	
 	
 	
@@ -170,57 +179,21 @@ public class BuilderController {
 	public String showResultPage(ModelMap model, @RequestParam(value = "select1", required = false) String select1, @RequestParam(value = "select2", required = false) String select2) throws IOException, GitAPIException, InterruptedException {
 		System.out.println(select1 + " " + select2);
 		int num = githubInfoList.size();
-		int i,j;
 		List<GithubInfo> _githubInfoList = new ArrayList<GithubInfo>();
 		List<String> _msg = new ArrayList<String>();
 		List<String> _status = new ArrayList<String>();
 		List<String> repoList = new ArrayList<String>();
 		
-		for(i = 0; i < num; i++) {
-			String tmpName = githubInfoList.get(i).getUserName() + "/" + githubInfoList.get(i).getRepoName();
-			for(j = 0; j < repoList.size(); j++) {
-				if(tmpName.equals(repoList.get(j))) {
-					break;
-				}
-			}
-			if(j == repoList.size()) {
-				repoList.add(tmpName);
-			}
-		}
+		repoList = createRepoNameList(num);
 		
 		//System.out.println("***********************" + repoList.toString()); 
 		
 		model.addAttribute("repoList", repoList);
 
 		if(select1 != null && select2 != null) {
-
-			if(select1.equals("Name")) {
-				for(i = 0; i < num; i++) {
-					String tmpName = githubInfoList.get(i).getUserName() + "/" + githubInfoList.get(i).getRepoName();
-					if(tmpName.equals(select2)) {
-						_githubInfoList.add(githubInfoList.get(i));
-						_msg.add(msg.get(i));
-						_status.add(status.get(i));
-					}
-				}
-				//System.out.println("----------------" + _githubInfoList.toString()); 
-			}
-			else if(select1.equals("Status")) {
-				for(i = 0; i < num; i++) {
-					if(status.get(i).equals(select2)) {
-						_githubInfoList.add(githubInfoList.get(i));
-						_msg.add(msg.get(i));
-						_status.add(status.get(i));
-					}
-				}
-			}
-			else {
-				_githubInfoList = githubInfoList;
-				_msg = msg;
-				_status = status;
-			}
+			showResultTable(_githubInfoList, _msg, _status, select1, select2, num);
 		}
-		
+		System.out.println("----------------" + _githubInfoList.toString()); 
 		model.addAttribute("_githubInfoList", _githubInfoList);
 		model.addAttribute("_Msg", _msg);
 		model.addAttribute("_Status", _status);
@@ -244,12 +217,126 @@ public class BuilderController {
 		model.addAttribute("fruits", fruits);
 		model.addAttribute("nums", nums);
 		model.addAttribute("status1", status1);
-				
-		
-		//if(select1.equals("Name")) {
-			//model.addAttribute("fruits", fruits);
-		//}
+
         return "clone-build";
     }
+	
+	@RequestMapping(value = "/dataquery", method = RequestMethod.GET)
+	public String showDataQueryPage(ModelMap model, @RequestParam(value = "select1", required = false) String select1, @RequestParam(value = "select2", required = false) String select2) throws IOException, GitAPIException, InterruptedException {
+		System.out.println(select1 + " " + select2);
+		int num = githubInfoList.size();
+		List<GithubInfo> _githubInfoList = new ArrayList<GithubInfo>();
+		List<String> _msg = new ArrayList<String>();
+		List<String> _status = new ArrayList<String>();
+		List<String> repoList = new ArrayList<String>();
+		
+		repoList = createRepoNameList(num);
+		
+		model.addAttribute("repoList", repoList);
+
+		if(select1 != null && select2 != null) {
+			showResultTable(_githubInfoList, _msg, _status, select1, select2, num);
+		}
+		System.out.println("----------------" + _githubInfoList.toString()); 
+		model.addAttribute("_githubInfoList", _githubInfoList);
+		model.addAttribute("_Status", _status);
+		
+		return "dataquery";
+	}
+	/*
+	@RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
+    public void doDownload(HttpServletRequest request, HttpServletResponse response, @PathVariable("id") int id) throws IOException {
+		
+		System.out.println("******************" + id);
+
+		String filePath = githubInfoList.get(id).getLocalpath() + "/build/outputs/apk/";
+		String fullPath =
+        ServletContext context = request.getSession().getServletContext();
+    
+        File downloadFile = new File(filePath);
+        FileInputStream inputStream = new FileInputStream(downloadFile);
+         
+        // get MIME type of the file
+        String mimeType = context.getMimeType(filePath);
+        if (mimeType == null) {
+            // set to binary type if MIME mapping not found
+            mimeType = "application/octet-stream";
+        }
+        System.out.println("MIME type: " + mimeType);
+ 
+        // set content attributes for the response
+        response.setContentType(mimeType);
+        response.setContentLength((int) downloadFile.length());
+ 
+        // set headers for the response
+        String headerKey = "Content-Disposition";
+        String headerValue = String.format("attachment; filename=\"%s\"",
+                downloadFile.getName());
+        response.setHeader(headerKey, headerValue);
+ 
+        // get output stream of the response
+        OutputStream outStream = response.getOutputStream();
+ 
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int bytesRead = -1;
+ 
+        // write bytes read from the input stream into the output stream
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outStream.write(buffer, 0, bytesRead);
+        }
+ 
+        inputStream.close();
+        outStream.close();
+    }
+	*/
+	private List<String> createRepoNameList(int num) {
+		int i,j;
+		List<String> repoList = new ArrayList<String>();
+		for(i = 0; i < num; i++) {
+			String tmpName = githubInfoList.get(i).getUserName() + "/" + githubInfoList.get(i).getRepoName();
+			for(j = 0; j < repoList.size(); j++) {
+				if(tmpName.equals(repoList.get(j))) {
+					break;
+				}
+			}
+			if(j == repoList.size()) {
+				repoList.add(tmpName);
+			}
+		}
+		return repoList;
+	}
+	
+	private void showResultTable(List<GithubInfo> t_githubInfoList, List<String> t_msg, List<String> t_status, String select1, String select2, int num){
+		int i;
+		
+		if(select1.equals("Name")) {
+			for(i = 0; i < num; i++) {
+				String tmpName = githubInfoList.get(i).getUserName() + "/" + githubInfoList.get(i).getRepoName();
+				if(tmpName.equals(select2)) {
+					t_githubInfoList.add(githubInfoList.get(i));
+					t_msg.add(msg.get(i));
+					t_status.add(status.get(i));
+				}
+			}
+			//System.out.println("----------------" + _githubInfoList.toString()); 
+		}
+		else if(select1.equals("Status")) {
+			for(i = 0; i < num; i++) {
+				if(status.get(i).equals(select2)) {
+					t_githubInfoList.add(githubInfoList.get(i));
+					t_msg.add(msg.get(i));
+					t_status.add(status.get(i));
+				}
+			}
+		}
+		else {
+			
+			for(i = 0; i < num; i++) {
+				t_githubInfoList.add(githubInfoList.get(i));
+				t_msg.add(msg.get(i));
+				t_status.add(status.get(i));
+			}
+		}
+	}
 	
 }

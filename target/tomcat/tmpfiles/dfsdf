@@ -1,0 +1,13 @@
+import re
+
+p = re.compile( r'[a-z]*b' )
+m = p.match( 'adjkb' )
+print(p.findall('afds djew bbb cciels 12394b .!djkb sdfadfb' ))
+if m:
+    print('Match found: ', m.group())
+else:
+    print('No match')
+
+
+
+

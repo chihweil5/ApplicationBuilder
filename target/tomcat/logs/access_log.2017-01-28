@@ -1457,3 +1457,8 @@
 0:0:0:0:0:0:0:1 - - [28/Jan/2017:22:15:46 -0700] "GET /result?select1=Name&select2=chihweil5%2Fasd HTTP/1.1" 200 5447 http-bio-8080-exec-8 2
 0:0:0:0:0:0:0:1 - - [28/Jan/2017:22:15:51 -0700] "GET /result?select1=All&select2=All HTTP/1.1" 200 5988 http-bio-8080-exec-8 2
 0:0:0:0:0:0:0:1 - - [28/Jan/2017:22:16:24 -0700] "GET /result?select1=Status&select2=Scheduled HTTP/1.1" 200 5309 http-bio-8080-exec-8 2
+0:0:0:0:0:0:0:1 - - [28/Jan/2017:22:20:25 -0700] "GET /result?select1=Status&select2=Scheduled HTTP/1.1" 200 5095 http-bio-8080-exec-2 63
+0:0:0:0:0:0:0:1 - - [28/Jan/2017:22:20:28 -0700] "GET /result?select1=All&select2=All HTTP/1.1" 200 5095 http-bio-8080-exec-2 2
+0:0:0:0:0:0:0:1 - - [28/Jan/2017:23:25:09 -0700] "GET /clone-build HTTP/1.1" 200 5284 http-bio-8080-exec-7 152
+0:0:0:0:0:0:0:1 - - [28/Jan/2017:23:54:11 -0700] "GET /clone-build HTTP/1.1" 200 5118 http-bio-8080-exec-1 63
+0:0:0:0:0:0:0:1 - - [28/Jan/2017:23:54:17 -0700] "GET /clone-build HTTP/1.1" 200 5118 http-bio-8080-exec-1 2

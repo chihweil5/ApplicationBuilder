@@ -2,13 +2,14 @@
 
 <div class="container">
 
-<h1>Result</h1>
-	<br> 
+	<h1>Result</h1>
+	<br>
 	<form id="queryForm" method="get">
 		<div class="form-group">
 			<label class="col-xs-2 control-label">Search by: </label>
 			<div class="col-xs-2 ">
-				<select class="form-control" id="select1" name="select1" onChange="showOption();">
+				<select class="form-control" id="select1" name="select1"
+					onChange="showOption();">
 					<option value="">Please Select</option>
 					<option value="Name">Repository Name</option>
 					<option value="Status">Status</option>
@@ -19,20 +20,21 @@
 					onChange="search()">
 				</select>
 			</div>
-			
+
 			<div class="col-xs-1">
 				<button class="btn btn-danger" type="submit">Query</button>
 			</div>
-		
+
 			<div class="col-xs-1">
-				<button class="btn btn-default" onclick="showAll()">Show All</button>
+				<button class="btn btn-default" onclick="showAll()">Show
+					All</button>
 			</div>
-			
-			<label class="control-label">Select File</label>
-			<input id="input-1" type="file" class="file">
+
+			<label class="control-label">Select File</label> <input id="input-1"
+				type="file" class="file">
 		</div>
 	</form>
-	
+
 	<br> <br>
 	<table id="myTable" class="table table-striped">
 		<thead>
@@ -56,20 +58,23 @@
 	<div>
 		<a class="btn btn-primary" href="/appbuilder">Back</a>
 	</div>
-
+	<form method="POST" action="uploadFile" enctype="multipart/form-data">
+		File to upload: <input type="file" name="file">
+		Name: <input type="text" name="name">
+		<input type="submit" value="Upload"> Press here to upload the file!
+	</form>	
 </div>
 <script>
-$(document).ready(function() {
-	console.log("selectpicker");
-	$('.selectpicker').selectpicker({
-    });
-	$(".bootstrap-select").click(function () {
-        $(this).addClass("open");
-   });
-	$('#selectpicker-container').on('hide.bs.dropdown', function () {
-	    alert('hide.bs.dropdown');
-	})
-});
+	$(document).ready(function() {
+		console.log("selectpicker");
+		$('.selectpicker').selectpicker({});
+		$(".bootstrap-select").click(function() {
+			$(this).addClass("open");
+		});
+		$('#selectpicker-container').on('hide.bs.dropdown', function() {
+			alert('hide.bs.dropdown');
+		})
+	});
 </script>
 
 <script>
@@ -82,15 +87,13 @@ $(document).ready(function() {
 		var sel1 = document.getElementById('select1');
 		var sel2 = document.getElementById('select2');
 
-		if(sel1.value == "Name") {
-			
-			
-		} else if(sel1.value == "Status") {
+		if (sel1.value == "Name") {
+
+		} else if (sel1.value == "Status") {
 			sel2.options[0] = new Option("Built", "Built");
 			sel2.options[1] = new Option("Failed", "Failed");
 			sel2.length = 2;
-		}
-		else {
+		} else {
 			sel2.length = 0;
 		}
 	}
@@ -128,8 +131,7 @@ $(document).ready(function() {
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			for (i = 0; i < tr.length; i++) {
 				tr[i].style.display = "";
 			}
@@ -144,9 +146,9 @@ $(document).ready(function() {
 		table = document.getElementById("myTable");
 		tr = table.getElementsByTagName("tr");
 		for (i = 0; i < tr.length; i++) {
-				tr[i].style.display = "";
+			tr[i].style.display = "";
 		}
-		
+
 	}
 </script>
 
