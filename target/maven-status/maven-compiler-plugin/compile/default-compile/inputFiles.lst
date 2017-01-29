@@ -1,7 +1,8 @@
-/Users/chihwei/Documents/workspace/ApplicationBuilder/src/main/java/com/appbuilder/helper/GithubHelper.java
-/Users/chihwei/Documents/workspace/ApplicationBuilder/src/main/java/com/appbuilder/model/GithubInfo.java
-/Users/chihwei/Documents/workspace/ApplicationBuilder/src/main/java/com/appbuilder/controller/FileUploadController.java
-/Users/chihwei/Documents/workspace/ApplicationBuilder/src/main/java/com/appbuilder/service/GradleService.java
-/Users/chihwei/Documents/workspace/ApplicationBuilder/src/main/java/com/appbuilder/service/GithubService.java
-/Users/chihwei/Documents/workspace/ApplicationBuilder/src/main/java/com/appbuilder/model/GithubInfoWrapper.java
-/Users/chihwei/Documents/workspace/ApplicationBuilder/src/main/java/com/appbuilder/controller/BuilderController.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/controller/BuilderController.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/model/GithubInfoWrapper.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/service/GradleService.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/helper/GithubHelper.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/model/GithubInfo.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/service/GithubService.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/controller/GithubController.java
+/Users/chihwei/Documents/ApplicationBuilder/src/main/java/com/appbuilder/controller/FileUploadController.java
