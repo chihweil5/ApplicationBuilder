@@ -41,8 +41,7 @@
 			<tr>
 				<th>User Name/Repository Name</th>
 				<th>Status</th>
-				<th>Path</th>
-				<th>Message</th>
+				<th>Data Information</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -50,8 +49,12 @@
 				<tr>
 					<td>${githubInfo.userName}/${githubInfo.repoName}</td>
 					<td>${_Status[i.index]}</td>
-					<td>${githubInfo.localpath}</td>
-					<td>${_Msg[i.index]}</td>
+					<c:if test="${_Status[i.index] != 'Built'}">
+						<td>${_Msg[i.index]}</td>
+					</c:if>
+					<c:if test="${_Status[i.index] == 'Built'}">
+						<td>Location: ${githubInfo.localpath}</td>
+					</c:if>
 				</tr>
 			</c:forEach>
 		</tbody>
@@ -66,21 +69,21 @@
  
 <script>
 
-	function showOption() {
-		console.log("changing the option");
-		var sel1 = document.getElementById('select1');
-		var sel2 = document.getElementById('select2');
-			
-		if(sel1.value == "Name") {
-			<c:forEach items="${repoList}" var="repo" varStatus="i">
-				sel2.options[${i.index}] = new Option("${repo}", "${repo}");
-			</c:forEach>
-			/*for(i = 0; i < ${repoList}.length; i++) {
-				console.log("Repository Name" + reponame);
-				sel2.options[i] = new Option(reponame[i], reponame[i]);
-			}*/
-			
-		} else if(sel1.value == "Status") {
+function showOption() {
+	console.log("changing the option");
+	var sel1 = document.getElementById('select1');
+	var sel2 = document.getElementById('select2');
+		
+	if(sel1.value == "Name") {
+		<c:forEach items="${repoList}" var="repo" varStatus="i">
+			sel2.options[${i.index}] = new Option("${repo}", "${repo}");
+		</c:forEach>
+		/*for(i = 0; i < ${repoList}.length; i++) {
+			console.log("Repository Name" + reponame);
+			sel2.options[i] = new Option(reponame[i], reponame[i]);
+		}*/
+		
+	} else if(sel1.value == "Status") {
 			sel2.options[0] = new Option("Built", "Built");
 			sel2.options[1] = new Option("Failed", "Failed");
 			sel2.options[2] = new Option("Scheduled", "Scheduled");

@@ -1,8 +1,0 @@
-import re
-
-p = re.compile( r'.*\b[Gg][Rr][Oo][Tt][Tt][Oo]\b.*\b[Rr][Aa][Vv][Ee][Nn]\b.*|.*\b[Rr][Aa][Vv][Ee][Nn]\b.*\b[Gg][Rr][Oo][Tt][Tt][Oo]\b.*' )
-m = p.match( 'adfsaf grotto raven dfadf' )
-if m:
-    print('Match found: ', m.group())
-else:
-    print('No match')

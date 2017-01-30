@@ -17,6 +17,7 @@ public class GradleService {
 	public boolean executeGradle(String path) {
 		System.out.println("Generating .apk file....");
 		String dest = path;
+		System.out.println("in the repository..." + dest);
 		File projectDir = new File(dest);
 		ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(projectDir).connect();
 

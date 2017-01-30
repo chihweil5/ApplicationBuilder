@@ -8,6 +8,7 @@ public class GithubInfo {
 	
 	public GithubInfo() {
 		super();
+		this.localpath = System.getProperty("user.dir");
 	}
 	
 	public GithubInfo(String userName, String repoName, String tags, String localpath) {
@@ -15,7 +16,7 @@ public class GithubInfo {
 		this.userName = userName;
 		this.repoName = repoName;
 		this.tags = tags;
-		this.localpath = localpath + "/" + repoName;
+		this.localpath = System.getProperty("user.dir") + "/" + repoName;
 	}
 	public String getUserName() {
 		return userName;

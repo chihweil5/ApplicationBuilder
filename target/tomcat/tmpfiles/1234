@@ -1,8 +1,0 @@
-import re
-
-p = re.compile( '(b+(ab)+)?' )
-m = p.match( 'bbbbbabbbabb' )
-if m:
-    print('Match found: ', m.group())
-else:
-    print('No match')

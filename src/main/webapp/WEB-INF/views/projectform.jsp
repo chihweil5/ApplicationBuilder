@@ -25,20 +25,13 @@
 						class="form-control" id="github[${i.index}].tags" name="github[${i.index}].tags"
 						placeholder="SHA Tag" />
 				</div>
-				<div class="col-xs-3">
-					<form:input path="githubInfoList[${i.index}].localpath" type="text"
-						class="form-control" id="github[${i.index}].path" name="github[${i.index}].path"
-						placeholder="Local Path" />
-				</div>
 			</div>
 		</c:forEach>
 
 		<div class="col-xs-2">
 			<button id="CloneBtn" type="submit" class="btn btn-success btn-md">Clone and Build</button>
 		</div>
-		<div class="col-xs-1">
-			<a class="btn btn-primary" href="/appbuilder">Back</a>
-		</div>
+	
 	</form:form>
 </div>
 

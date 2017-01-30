@@ -47,6 +47,9 @@
 					<c:if test="${_Status[i.index] == 'Built'}">
 						<td><a class="btn btn-primary" type="submit" href="/download/${i.index}">download ${githubInfo.repoName} apk file</a></td>
 					</c:if>
+					<c:if test="${_Status[i.index] != 'Built'}">
+						<td>fail to build ${githubInfo.repoName} apk file</td>
+					</c:if>
 				</tr>
 			</c:forEach>
 		</tbody>

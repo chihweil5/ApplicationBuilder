@@ -1,8 +1,10 @@
 package com.appbuilder.controller;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -43,9 +45,7 @@ public class BuilderController {
 	private List<String> status;
 	
 	private static final int BUFFER_SIZE = 4096;
-	
-	
-	
+
 	public BuilderController() {
 		super();
 		githubInfoList = new ArrayList<GithubInfo>();
@@ -69,23 +69,12 @@ public class BuilderController {
     public String showProjectFormPage(ModelMap model, @RequestParam String numOfProj) {
 		GithubInfoWrapper githubInfoWrapper = new GithubInfoWrapper();
 		for(int i = 0; i < Integer.parseInt(numOfProj); i++) {
-			githubInfoWrapper.add(new GithubInfo());
+			githubInfoWrapper.getGithubInfoList().add(new GithubInfo());
 		}
 		System.out.println("GithubInfoWrapper size: " + githubInfoWrapper.getGithubInfoList().size());
 		model.addAttribute("githubInfoWrapper", githubInfoWrapper);
         return "projectform";
     }
-	/*@RequestMapping(value = "/builder", method = RequestMethod.GET)
-    public String showClonePage(ModelMap model) {
-		GithubInfoWrapper githubInfoWrapper = new GithubInfoWrapper();
-		githubInfoWrapper.add(new GithubInfo("a","b","c","d"));
-		githubInfoWrapper.add(new GithubInfo("e","f","g","h"));
-		System.out.println("GithubInfoWrapper size: " + githubInfoWrapper.getGithubInfoList().size());
-		List<GithubInfo> test = githubInfoWrapper.getGithubInfoList();
-		System.out.println(test.get(0).getUserName());
-		model.addAttribute("githubInfoWrapper", githubInfoWrapper);
-        return "appbuilder";
-    }*/
     
 	@RequestMapping(value = "/projectform", method = RequestMethod.POST)
     public void HandleCloneAndBuild(ModelMap model, GithubInfoWrapper githubInfoWrapper) throws MalformedURLException, IOException, GitAPIException, InterruptedException {
@@ -177,7 +166,7 @@ public class BuilderController {
 	
 	@RequestMapping(value = "/result", method = RequestMethod.GET)
 	public String showResultPage(ModelMap model, @RequestParam(value = "select1", required = false) String select1, @RequestParam(value = "select2", required = false) String select2) throws IOException, GitAPIException, InterruptedException {
-		System.out.println(select1 + " " + select2);
+		//System.out.println(select1 + " " + select2);
 		int num = githubInfoList.size();
 		List<GithubInfo> _githubInfoList = new ArrayList<GithubInfo>();
 		List<String> _msg = new ArrayList<String>();
@@ -193,7 +182,7 @@ public class BuilderController {
 		if(select1 != null && select2 != null) {
 			showResultTable(_githubInfoList, _msg, _status, select1, select2, num);
 		}
-		System.out.println("----------------" + _githubInfoList.toString()); 
+		//System.out.println("----------------" + _githubInfoList.toString()); 
 		model.addAttribute("_githubInfoList", _githubInfoList);
 		model.addAttribute("_Msg", _msg);
 		model.addAttribute("_Status", _status);
@@ -201,29 +190,9 @@ public class BuilderController {
 		return "result";
 	}
 	
-	
-	@RequestMapping(value = "/clone-build", method = RequestMethod.GET)
-    public String showSuccessPage(ModelMap model, @RequestParam(value = "select1", required = false) String select1, @RequestParam(value = "select2", required = false) String select2) throws InterruptedException {
-		/*
-		if(select1.length() == 0 && select2.length() == 0) {
-			return "clone-build";
-		}
-		*/
-		List<String> fruits= new ArrayList<String>(Arrays.asList("apple","banana", "cherry"));
-		List<String> nums= new ArrayList<String>(Arrays.asList("1","2", "3"));
-		List<String> status1= new ArrayList<String>(Arrays.asList("Failed","Failed", "Failed"));
-		System.out.println(select1 + " " + select2);
-		
-		model.addAttribute("fruits", fruits);
-		model.addAttribute("nums", nums);
-		model.addAttribute("status1", status1);
-
-        return "clone-build";
-    }
-	
 	@RequestMapping(value = "/dataquery", method = RequestMethod.GET)
 	public String showDataQueryPage(ModelMap model, @RequestParam(value = "select1", required = false) String select1, @RequestParam(value = "select2", required = false) String select2) throws IOException, GitAPIException, InterruptedException {
-		System.out.println(select1 + " " + select2);
+		//System.out.println(select1 + " " + select2);
 		int num = githubInfoList.size();
 		List<GithubInfo> _githubInfoList = new ArrayList<GithubInfo>();
 		List<String> _msg = new ArrayList<String>();
@@ -237,58 +206,60 @@ public class BuilderController {
 		if(select1 != null && select2 != null) {
 			showResultTable(_githubInfoList, _msg, _status, select1, select2, num);
 		}
-		System.out.println("----------------" + _githubInfoList.toString()); 
+		//System.out.println("----------------" + _githubInfoList.toString()); 
 		model.addAttribute("_githubInfoList", _githubInfoList);
 		model.addAttribute("_Status", _status);
 		
 		return "dataquery";
 	}
-	/*
+	
 	@RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     public void doDownload(HttpServletRequest request, HttpServletResponse response, @PathVariable("id") int id) throws IOException {
 		
-		System.out.println("******************" + id);
+		System.out.println("downloading apk files from " + githubInfoList.get(id).getRepoName() + "...");
 
-		String filePath = githubInfoList.get(id).getLocalpath() + "/build/outputs/apk/";
-		String fullPath =
+		List<String> filePaths = findApkFile(githubInfoList.get(id).getLocalpath());
+		//System.out.println(filePaths.toString());
         ServletContext context = request.getSession().getServletContext();
-    
-        File downloadFile = new File(filePath);
-        FileInputStream inputStream = new FileInputStream(downloadFile);
-         
-        // get MIME type of the file
-        String mimeType = context.getMimeType(filePath);
-        if (mimeType == null) {
-            // set to binary type if MIME mapping not found
-            mimeType = "application/octet-stream";
+        
+        for(int i = 0; i < filePaths.size(); i++) {
+        	File downloadFile = new File(filePaths.get(i));
+            FileInputStream inputStream = new FileInputStream(downloadFile);
+             
+            // get MIME type of the file
+            String mimeType = context.getMimeType(filePaths.get(i));
+            if (mimeType == null) {
+                // set to binary type if MIME mapping not found
+                mimeType = "application/octet-stream";
+            }
+            //System.out.println("MIME type: " + mimeType);
+     
+            // set content attributes for the response
+            response.setContentType(mimeType);
+            response.setContentLength((int) downloadFile.length());
+     
+            // set headers for the response
+            String headerKey = "Content-Disposition";
+            String headerValue = String.format("attachment; filename=\"%s\"",
+                    downloadFile.getName());
+            response.setHeader(headerKey, headerValue);
+     
+            // get output stream of the response
+            OutputStream outStream = response.getOutputStream();
+     
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead = -1;
+     
+            // write bytes read from the input stream into the output stream
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, bytesRead);
+            }
+            
+            inputStream.close();
+            outStream.close();
         }
-        System.out.println("MIME type: " + mimeType);
- 
-        // set content attributes for the response
-        response.setContentType(mimeType);
-        response.setContentLength((int) downloadFile.length());
- 
-        // set headers for the response
-        String headerKey = "Content-Disposition";
-        String headerValue = String.format("attachment; filename=\"%s\"",
-                downloadFile.getName());
-        response.setHeader(headerKey, headerValue);
- 
-        // get output stream of the response
-        OutputStream outStream = response.getOutputStream();
- 
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int bytesRead = -1;
- 
-        // write bytes read from the input stream into the output stream
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outStream.write(buffer, 0, bytesRead);
-        }
- 
-        inputStream.close();
-        outStream.close();
     }
-	*/
+
 	private List<String> createRepoNameList(int num) {
 		int i,j;
 		List<String> repoList = new ArrayList<String>();
@@ -339,4 +310,20 @@ public class BuilderController {
 		}
 	}
 	
+	private List<String> findApkFile(String path) {
+		List<String> filePath = new ArrayList<String>();
+		
+		try {
+            Process p = Runtime.getRuntime().exec(new String[]{"find", path, "-name", "*.apk"});
+            BufferedReader in = new BufferedReader(
+                                new InputStreamReader(p.getInputStream()));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                filePath.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		return filePath;
+	}
 }
