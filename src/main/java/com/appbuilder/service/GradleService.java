@@ -1,9 +1,9 @@
 package com.appbuilder.service;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,14 +12,15 @@ import org.springframework.stereotype.Service;
 public class GradleService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(GradleService.class);
-	private Exception errorMsg;
+	private String errorMsg;
 	
 	public boolean executeGradle(String path) {
-		System.out.println("Generating .apk file....");
+		/*System.out.println("Generating .apk file....");
 		String dest = path;
 		System.out.println("in the repository..." + dest);
 		File projectDir = new File(dest);
-		ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(projectDir).connect();
+		File gradlefile = new File("/usr/local/tomcat/gradle-3.3/daemon/3.3");
+		ProjectConnection connection = GradleConnector.newConnector().useInstallation(gradlefile).forProjectDirectory(projectDir).connect();
 
 		try {
 			connection.newBuild().forTasks("assembleDebug").run();
@@ -30,12 +31,29 @@ public class GradleService {
 			return false;
 		} finally {
 			connection.close();
-		}
-		
+		}*/
+
+		try {
+            Process p = Runtime.getRuntime().exec(new String[]{"gradle", "-p", path, "assembleDebug"});
+            BufferedReader in = new BufferedReader(
+                                new InputStreamReader(p.getInputStream()));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+                if(line.indexOf("FAILED") > -1) {
+                	errorMsg = "Gradle Build Failed";
+                	return false;
+                }
+            }
+        } catch (IOException e) {
+        	e.printStackTrace();
+            errorMsg = "Error Message:" + e;
+            return false;
+        }
 		return true;
 	}
 
-	public Exception getErrorMsg() {
+	public String getErrorMsg() {
 		return errorMsg;
 	}
 

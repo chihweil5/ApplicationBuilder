@@ -147,7 +147,7 @@ public class BuilderController {
 				System.out.println("Fail to build the app project");
 				System.out.println("Error message: " + gradleService.getErrorMsg());
 				System.out.println("--------------------------------------------------");
-				msg.set(i, "Error message: " + gradleService.getErrorMsg());
+				msg.set(i, gradleService.getErrorMsg());
 				status.set(i, "Failed");
 				continue;
 			}
@@ -214,7 +214,7 @@ public class BuilderController {
 	}
 	
 	@RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
-    public void doDownload(HttpServletRequest request, HttpServletResponse response, @PathVariable("id") int id) throws IOException {
+    public String doDownload(HttpServletRequest request, HttpServletResponse response, @PathVariable("id") int id) throws IOException {
 		
 		System.out.println("downloading apk files from " + githubInfoList.get(id).getRepoName() + "...");
 
@@ -258,6 +258,7 @@ public class BuilderController {
             inputStream.close();
             outStream.close();
         }
+        return "redirect:dataquery";
     }
 
 	private List<String> createRepoNameList(int num) {

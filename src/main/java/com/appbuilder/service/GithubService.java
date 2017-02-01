@@ -46,11 +46,14 @@ public class GithubService {
 
 		 // then clone 
 		 System.out.println("Cloning from " + g.getURL() + " to " + localPath); 
-		 try (Git result = Git.cloneRepository().setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out))).setURI(g.getRepoURL()).setDirectory(localPath).call()) { 
+		 Git result = Git.cloneRepository().setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out))).setURI(g.getRepoURL()).setDirectory(localPath).call();
+		 try { 
 			 g.setLocalpath(localPath.getAbsolutePath());
 			 System.out.println("Having repository: " + result.getRepository().getDirectory()); 
 		 } catch (Exception ex) {
 			 System.out.println("Fail to have repository"); 
+		 } finally {
+		        result.close();
 		 }
 	}
 	
@@ -77,10 +80,13 @@ public class GithubService {
 	public void getVersionByTags(GithubInfo g) throws IOException, CheckoutConflictException, GitAPIException {
 		File dir = new File(g.getLocalpath() + "/.git"); 
 		try (Repository repository = GithubHelper.openRepository(dir)) {
-			try (Git git = new Git(repository)) {
+			Git git = new Git(repository);
+			try {
 				System.out.println("get Version " + g.getTags());
 				git.checkout().setCreateBranch( true ).setName( "new-branch" ).setStartPoint( g.getTags() ).call();
 				git.checkout().setName( "new-branch").call();
+			} finally {
+				git.close();
 			}
 	    }
 	}
